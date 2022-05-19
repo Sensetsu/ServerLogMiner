@@ -1,35 +1,36 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import load
+import time
+import csv
+import util
+import kernelDensity
 
-def n_ln(dist, numbins):
-    log_dist = np.log10(dist)
-    bins = np.linspace(min(log_dist),max(log_dist), numbins)
-    hist, r_array = np.histogram(log_dist, bins)
+#kernels = ["gaussian", "tophat", "epanechnikov"]
 
-    dR = r_array[1]-r_array[0]    
-    x_array = r_array[1:] - dR/2
-    volume =  [4.*np.pi*i**3. for i in 10**x_array[:] ]
+startTime = time.time()
 
-    return [10**x_array, hist/dR/volume]
+logData = np.array(util.loadLogFile())
+timeIntArr = util.timeStrArrToIntArr(logData[:,1])
+mainDens = kernelDensity.calculate(timeIntArr, 216, "gaussian")
+#testDens = kernelDensity.calculate(util.filterTimeData(timeIntArr, logData[:,3], "Wade.Carlson"), 216, "gaussian")
+#kernelDensity.plot(mainDens)
+#kernelDensity.plot(testDens)
 
-plt.style.use('seaborn-whitegrid')
+densArr = []
 
-data = np.array(load.LoadLogFile())
-result = n_ln(data[:,1], 284200)
-print(result)
+testTime = time.time()
+for timeInt in timeIntArr:
+    densArr.append(kernelDensity.evaluate(timeInt, mainDens))
+print("Densities evaluated in " + str((time.time() - testTime) * 1000) + " ms")
 
-#here's our data to plot, all normal Python lists
-x = data[:,1]
-y = np.full((284200, 1), 0)
+newData = np.empty((len(densArr), 11)).astype(str)
 
-#intensity = np.full((284200, 1), 1)
+for i in range(len(densArr)):
+    newData[i] = np.append(logData[i], str(densArr[i]))
 
-#setup the 2D grid with Numpy
-#x, y = np.meshgrid(x, y)
+with open("result.csv", "w") as file:
+    writer = csv.writer(file)
+    #writer.writerow(["Date","Time","Client IP","Client Name","Server IP","Server Port","Request Method","Requested Resource","Client ID","Status","Kernel Density"])
+    writer.writerows(newData)
 
-#now just plug the data into pcolormesh, it's that easy!
-#plt.pcolormesh(x, y, intensity)
-#plt.colorbar() #need a colorbar to show the intensity scale
-plt.plot(x,y)
-plt.show() #boom
+print("Operation completed in " + str((time.time() - startTime) * 1000) + " ms")
