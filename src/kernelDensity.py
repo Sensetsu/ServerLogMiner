@@ -16,7 +16,6 @@ else:
 
 def calculate(timeIntArr, numSamples, kernel, bandwidth=0.5):
     startTime = time.time()
-    N = len(timeIntArr)
     X = np.array(timeIntArr).reshape(-1, 1)
 
     X_plot = np.linspace(0, 86400, numSamples)[:, np.newaxis]
@@ -29,7 +28,7 @@ def calculate(timeIntArr, numSamples, kernel, bandwidth=0.5):
 def plot(densityArr):
     startTime = time.time()
     X_plot = np.linspace(0, 86400, len(densityArr))[:, np.newaxis]
-    loc, ax = plt.subplots()
+    fig, ax = plt.subplots()
     lw = 2
     ax.plot(
         X_plot[:, 0],
