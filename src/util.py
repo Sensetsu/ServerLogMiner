@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.linalg as npalg
 import datetime
 import time
 
@@ -35,3 +36,6 @@ def filterTimeData(timeIntArr, conditionArr, filterValue):
             finalArr.append(timeIntArr[i])
     print("Data filtered in " + str((time.time() - startTime) * 1000) + " ms")
     return finalArr
+
+def cosineSimilarity(a, b):
+    return np.dot(a, b)/(npalg.norm(a)*npalg.norm(b))
